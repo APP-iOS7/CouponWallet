@@ -19,7 +19,9 @@ struct SelectedCouponView: View {
     @State private var editedBrand: String = ""
     @State private var editedExpirationDate: Date = Date()
     @State private var showSaveAlert: Bool = false
-    
+    // 스크린샷 변수 추가
+    @State private var screenshotImage: UIImage? = nil
+    @State private var showToast = false
     init(selectedGifticon: Gifticon) {
         self.initialGifticon = selectedGifticon
         
@@ -68,103 +70,151 @@ struct SelectedCouponView: View {
     }
     
     var body: some View {
-        VStack {
-            if availableGifticons.isEmpty {
-                Text("표시할 쿠폰이 없습니다")
-                    .foregroundColor(.gray)
-                    .padding()
-            } else {
-                TabView(selection: $selectedIndex) {
-                    ForEach(Array(availableGifticons.enumerated()), id: \.element.id) { index, gifticon in
-                        if isEditing && index == selectedIndex {
-                            // 수정 모드 셀
-                            EditableCouponCell(
-                                selectedCoupon: gifticon,
-                                productName: $editedProductName,
-                                brand: $editedBrand,
-                                expirationDate: $editedExpirationDate
-                            )
-                            .tag(index)
-                        } else {
-                            // 기본 표시 셀
-                            SelectedCouponCell(selectedCoupon: gifticon)
+        ZStack {
+            VStack {
+                if availableGifticons.isEmpty {
+                    Text("표시할 쿠폰이 없습니다")
+                        .foregroundColor(.gray)
+                        .padding()
+                } else {
+                    TabView(selection: $selectedIndex) {
+                        ForEach(Array(availableGifticons.enumerated()), id: \.element.id) { index, gifticon in
+                            if isEditing && index == selectedIndex {
+                                EditableCouponCell(
+                                    selectedCoupon: gifticon,
+                                    productName: $editedProductName,
+                                    brand: $editedBrand,
+                                    expirationDate: $editedExpirationDate
+                                )
                                 .tag(index)
-                        }
-                    }
-                }
-                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-                .animation(.easeInOut, value: selectedIndex)
-                .onAppear {
-                    // 초기 로드시 선택된 기프티콘의 인덱스로 설정
-                    selectedIndex = findInitialIndex()
-                }
-                
-                HStack {
-                    if isEditing {
-                        // 수정 모드일 때 버튼
-                        Button("취소") {
-                            isEditing = false
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .foregroundColor(.primary)
-                        .cornerRadius(10)
-                        
-                        Button("저장") {
-                            saveChanges()
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                    } else {
-                        // 기본 모드일 때 버튼
-                        Button("수정하기") {
-                            startEditing()
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue.opacity(0.7))
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        
-                        // 여기가 수정된 부분: NavigationLink 대신 Button 사용하고 dismiss() 호출
-                        Button("돌아가기") {
-                            dismiss() // 현재 뷰를 네비게이션 스택에서 제거
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(10)
-                        .foregroundColor(.primary)
-                        
-                        Button("사용하기") {
-                            if let gifticon = currentGifticon {
-                                gifticon.isUsed = true
-                                try? modelContext.save()
+                            } else {
+                                SelectedCouponCell(selectedCoupon: gifticon)
+                                    .tag(index)
                             }
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(currentGifticon?.isUsed ?? true ? Color.gray : Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .disabled(currentGifticon?.isUsed ?? true)
+                    }
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                    .animation(.easeInOut, value: selectedIndex)
+                    .onAppear {
+                        selectedIndex = findInitialIndex()
+                    }
+
+                    HStack {
+                        if isEditing {
+                            Button("취소") {
+                                isEditing = false
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .foregroundColor(.primary)
+                            .cornerRadius(10)
+
+                            Button("저장") {
+                                saveChanges()
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                        } else {
+                            Button("수정하기") {
+                                startEditing()
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue.opacity(0.7))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+
+                            Button("돌아가기") {
+                                dismiss()
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(10)
+                            .foregroundColor(.primary)
+
+                            Button("사용하기") {
+                                if let gifticon = currentGifticon {
+                                    gifticon.isUsed = true
+                                    try? modelContext.save()
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(currentGifticon?.isUsed ?? true ? Color.gray : Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .disabled(currentGifticon?.isUsed ?? true)
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("쿠폰 상세")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if let screenshot = screenshotImage {
+                        ShareLink(item: Image(uiImage: screenshot),
+                                  preview: SharePreview("화면 테마 스크린샷", image: Image(uiImage: screenshot))) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                    } else {
+                        Button {
+                            captureScreenshot()
+                        } label: {
+                            Image(systemName: "camera")
+                        }
                     }
                 }
-                .padding()
+            }
+            .alert("수정 완료", isPresented: $showSaveAlert) {
+                Button("확인", role: .cancel) { }
+            } message: {
+                Text("쿠폰 정보가 성공적으로 수정되었습니다.")
+            }
+
+            // Toast 메시지를 쿠폰 이미지 위로 이동 
+            if showToast {
+                VStack {
+                    Text("📸 스크린샷이 앨범에 저장되었습니다.")
+                        .padding()
+                        .background(Color(.systemGray5))
+                        .foregroundStyle(.black)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.top, 20) // 쿠폰 이미지 위에서 약간 아래로 위치
+                }
+                .frame(maxWidth: .infinity)
+                .frame(maxHeight: .infinity, alignment: .top) // 최상단 정렬
+                .zIndex(1) // 다른 UI 요소보다 위에 표시
+                .transition(.opacity)
+                .animation(.easeInOut, value: showToast)
             }
         }
-        .navigationTitle("쿠폰 상세")
-        .navigationBarTitleDisplayMode(.inline)
-        .alert("수정 완료", isPresented: $showSaveAlert) {
-            Button("확인", role: .cancel) { }
-        } message: {
-            Text("쿠폰 정보가 성공적으로 수정되었습니다.")
+    }
+    
+    // 스크린샷 캡처 함수
+    private func captureScreenshot() {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let screenshot = window.rootViewController?.view.changeUIImage() {
+            self.screenshotImage = screenshot
+            
+            // 원하는 경우 앨범에도 저장 가능
+            saveCaptureImageToAlbum(screenshot)
+            
+            // 토스트 메시지 표시
+            showToast = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                showToast = false
+            }
         }
     }
+    
 }
 
 // 기존 기프티콘 셀 (보기 모드)
