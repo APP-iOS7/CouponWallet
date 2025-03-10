@@ -7,13 +7,15 @@
 
 import SwiftUI
 /*
- 테스트로 ThemeView에서 공유 아이콘 클릭 시 갤러리에 저장
+ 테스트로 ThemeView에서 공유 아이콘 클릭 시 갤러리에 저장 및 공유
  */
+// ThemeView 수정 버전
 struct ThemeView: View {
-    // 스크린샷 저장
+    // 스크린샷 변수 추가
+    @State private var screenshotImage: UIImage? = nil
     @State private var showToast = false
-    @AppStorage("isDarkMode") private var isDarkMode = false  // 다크 모드 상태 저장
-    @Environment(\.colorScheme) var colorScheme  // 현재 다크/라이트 모드 확인
+    @AppStorage("isDarkMode") private var isDarkMode = false
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         NavigationStack {
@@ -26,7 +28,7 @@ struct ThemeView: View {
                     }) {
                         HStack {
                             Text("🌙 다크 모드")
-                                .foregroundColor(colorScheme == .dark ? .white : .black) // 다크 모드에서는 흰색, 라이트 모드에서는 검은색
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
                             Spacer()
                             if isDarkMode { Image(systemName: "checkmark").foregroundColor(colorScheme == .dark ? .white : .black) }
                         }
@@ -38,7 +40,7 @@ struct ThemeView: View {
                     }) {
                         HStack {
                             Text("☀️ 라이트 모드")
-                                .foregroundColor(colorScheme == .dark ? .white : .black) // 다크 모드에서는 흰색, 라이트 모드에서는 검은색
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
                             Spacer()
                             if !isDarkMode { Image(systemName: "checkmark").foregroundColor(colorScheme == .dark ? .white : .black) }
                         }
@@ -46,35 +48,29 @@ struct ThemeView: View {
                 }
             }
             .navigationTitle("화면 테마")
-            // 앱 전체에 다크 모드 적용
             .preferredColorScheme(isDarkMode ? .dark : .light)
         }
-        // 버튼을 누르면 캡쳐 후 갤러리에 저장
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                   
-                    // iOS 15 이상에서 화면 캡처 후 저장
-                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                       let window = windowScene.windows.first,
-                       let screenshot = window.rootViewController?.view.changeUIImage() {
-                        // 캡쳐 이미지 저장 Toast 메시지
-                        showToast = true
-                        saveCaptureImageToAlbum(screenshot)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            showToast = false
-                        }
-                        
+                // 스크린샷이 있으면 ShareLink 표시, 없으면 캡처 버튼 표시
+                if let screenshot = screenshotImage {
+                    ShareLink(item: Image(uiImage: screenshot),
+                              preview: SharePreview("화면 테마 스크린샷", image: Image(uiImage: screenshot))) {
+                        Image(systemName: "square.and.arrow.up")
                     }
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
+                } else {
+                    Button {
+                        captureScreenshot()
+                    } label: {
+                        Image(systemName: "camera")
+                    }
                 }
             }
         }
         // 캡쳐 이미지를 저장하면 Toast 메시지로 알려줌
         if showToast {
             VStack {
-                Text("스크린샷 앨범 저장 성공")
+                Text("스크린샷 앨범 저장")
                     .padding()
                     .background(Color(.systemGray5))
                     .foregroundStyle(.black)
@@ -83,12 +79,24 @@ struct ThemeView: View {
             .transition(.opacity)
             .animation(.easeInOut, value: showToast)
             .padding(.bottom, 50)
-            
         }
     }
     
-}
-
-#Preview {
-    ThemeView()
+    // 스크린샷 캡처 함수
+    private func captureScreenshot() {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let screenshot = window.rootViewController?.view.changeUIImage() {
+            self.screenshotImage = screenshot
+            
+            // 원하는 경우 앨범에도 저장 가능
+            saveCaptureImageToAlbum(screenshot)
+            
+            // 토스트 메시지 표시
+            showToast = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                showToast = false
+            }
+        }
+    }
 }
