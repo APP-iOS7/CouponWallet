@@ -9,7 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct SelectedCouponView: View {
-    let selectedCoupons = Gifticon.coupons
+//    let selectedCoupons = Gifticon.coupons
+    let selectedCoupons = Gifticon.filteredGifticons
+    // GifticonCard(gifticon: gifticon, isExpired: false)
     @State private var selectedIndex: Int = 0
     
     var body: some View {
