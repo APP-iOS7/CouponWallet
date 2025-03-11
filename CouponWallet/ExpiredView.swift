@@ -22,10 +22,12 @@ struct ExpiredView: View {
     @State private var selectedGifticonStatusFilter: String = "전체"
     // 체크 모드 - 삭제 -> 휴지통이동
     @State private var isCheckMode: Bool = false
-    // 선택한 기프티콘
-    @State private var selectedGifticon: Gifticon?
+    // 선택한 기프티콘들 - 다중 선택을 위해 배열로 변경
+    @State private var selectedGifticons: Set<UUID> = []
     // 삭제된 기프티콘 목록을 부모 뷰(ContentView)에서 전달받음
     @Binding var deletedGifticons: [Gifticon]
+    // 현재 선택된 탭을 ContentView에서 가져옴
+    @Binding var currentTab: Int
     // 다크모드 라이트모드 감지
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.modelContext) private var modelContext
@@ -36,8 +38,9 @@ struct ExpiredView: View {
     // 상태 필터 배열 (전체, 사용 완료, 만료)
     let gifticonStatusFilter: [String] = ["전체"] + GifticonStatus.allCases.map { $0.rawValue }
     
-    init(deletedGifticons: Binding<[Gifticon]>) {
+    init(deletedGifticons: Binding<[Gifticon]>, currentTab: Binding<Int>) {
         self._deletedGifticons = deletedGifticons
+        self._currentTab = currentTab
         
         let now = Date()
         // 쿼리: 만료되었거나 사용된 기프티콘 필터링
@@ -73,6 +76,11 @@ struct ExpiredView: View {
         }
     }
     
+    // 선택된 기프티콘 개수
+    var selectedCount: Int {
+        return selectedGifticons.count
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -97,34 +105,50 @@ struct ExpiredView: View {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                             // 정렬된 기프티콘 리스트 사용
                             ForEach(sortedGifticons) { gifticon in
-                                ZStack {
-                                    
+                                ZStack(alignment: .topTrailing) { // 정렬을 topTrailing으로 변경
                                     // 대홍 코드 추가 수정 시작
                                     NavigationLink(destination: SelectExpiredCouponView(selectedGifticon: gifticon)) {
                                     // 대홍 코드 추가 수정 끝
-                                        
                                         GifticonCard(gifticon: gifticon, status: determineGifticonStatus(gifticon))
-                                        
-                                        if isCheckMode {
-                                            Button {
-                                                selectedGifticon = gifticon
-                                                showDeleteAlert = true
-                                            } label: {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .resizable()
-                                                    .frame(width: 50, height: 50)
+                                    }
+                                    
+                                    if isCheckMode {
+                                        Button {
+                                            toggleSelection(gifticon)
+                                        } label: {
+                                            Image(systemName: isSelected(gifticon) ? "checkmark.circle.fill" : "circle")
+                                                .resizable()
+                                                .frame(width: 30, height: 30)
                                                 // 쿠폰이 선택되면 red로 색상 변경
-                                                    .foregroundColor(selectedGifticon == gifticon ? .red : .gray)
-                                                    .background(Circle().fill(Color.white).opacity(0.8))
-                                                    .clipShape(Circle())
-                                            }
-                                            .position(x: 90, y: 60)
+                                                .foregroundColor(isSelected(gifticon) ? .red : .gray)
+                                                .background(Circle().fill(Color.white).opacity(0.8))
+                                                .clipShape(Circle())
                                         }
+                                        .padding([.top, .trailing], 10) // 상단과 오른쪽에 여백 추가
                                     }
                                 } // ZStack
                             }
                         }
                         .padding()
+                    }
+                    
+                    // 체크 모드에서 선택된 항목이 있을 때만 표시되는 삭제 버튼
+                    if isCheckMode && selectedCount > 0 {
+                        Button {
+                            showDeleteAlert = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "trash")
+                                Text("\(selectedCount)개 삭제")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
                     }
                 }
             }
@@ -142,38 +166,67 @@ struct ExpiredView: View {
                     // 체크 모드 활성화를 통해 선택한 쿠폰을 휴지통으로 보냄
                     Button {
                         isCheckMode.toggle()
+                        // 체크 모드 종료시 선택 초기화
+                        if !isCheckMode {
+                            selectedGifticons.removeAll()
+                        }
                     } label: {
                         Image(systemName: isCheckMode ? "xmark.circle" : "trash")
                             .foregroundStyle(.red)
                     }
                 }
             }
-            .alert("이 쿠폰을 삭제하시겠습니까?", isPresented: $showDeleteAlert) {
+            .alert("선택한 쿠폰 삭제", isPresented: $showDeleteAlert) {
                 Button("삭제", role: .destructive) {
-                    if let selected = selectedGifticon {
-                        // 휴지통에 저장 하기 위해 추가
-                        deletedGifticons.append(selected)
-                        // 모델 컨텍스트에서 삭제
-                        modelContext.delete(selected)
-                        try? modelContext.save()
-                        print("\(selected.productName) 삭제됨")
-                    }
-                    showDeleteAlert = false
-                    // 삭제 후 선택 초기화 - 아이콘 회색
-                    selectedGifticon = nil
+                    deleteSelectedGifticons()
                 }
-                Button("취소", role: .cancel) {
-                    showDeleteAlert = false
-                    // 삭제 후 선택 초기화 - 아이콘 회색
-                    selectedGifticon = nil
-                    
-                }
+                Button("취소", role: .cancel) {}
             } message: {
-                Text("해당 쿠폰은 휴지통으로 이동 됩니다")
+                Text("선택한 \(selectedCount)개의 쿠폰이 휴지통으로 이동됩니다.")
             }
         }
         // 배경색 변경
         .background(colorScheme == .dark ? Color.black : Color.white)
+        // 탭 변경 감지 및 체크모드 리셋
+        .onChange(of: currentTab) { oldValue, newValue in
+            if newValue != 1 && isCheckMode {
+                // 다른 탭으로 이동했을 때 체크 모드 초기화
+                isCheckMode = false
+                selectedGifticons.removeAll()
+            }
+        }
+    }
+    
+    // 선택 여부 확인 함수
+    private func isSelected(_ gifticon: Gifticon) -> Bool {
+        return selectedGifticons.contains(gifticon.id)
+    }
+    
+    // 선택/해제 토글 함수
+    private func toggleSelection(_ gifticon: Gifticon) {
+        if selectedGifticons.contains(gifticon.id) {
+            selectedGifticons.remove(gifticon.id)
+        } else {
+            selectedGifticons.insert(gifticon.id)
+        }
+    }
+    
+    // 선택된 기프티콘 모두 삭제
+    private func deleteSelectedGifticons() {
+        for gifticon in sortedGifticons {
+            if selectedGifticons.contains(gifticon.id) {
+                // 휴지통에 저장하기 위해 추가
+                deletedGifticons.append(gifticon)
+                // 모델 컨텍스트에서 삭제
+                modelContext.delete(gifticon)
+            }
+        }
+        
+        try? modelContext.save()
+        print("\(selectedCount)개의 기프티콘 삭제됨")
+        
+        // 삭제 후 선택 초기화
+        selectedGifticons.removeAll()
     }
 }
 
@@ -265,5 +318,5 @@ extension Int {
 }
 
 #Preview {
-    ExpiredView(deletedGifticons: .constant([]))
+    ExpiredView(deletedGifticons: .constant([]), currentTab: .constant(1))
 }

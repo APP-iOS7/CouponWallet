@@ -25,7 +25,7 @@ struct ContentView: View {
                 .tag(0)
             
             // 사용·만료 탭
-            ExpiredView(deletedGifticons: $deletedGifticons)
+            ExpiredView(deletedGifticons: $deletedGifticons, currentTab: $selectedTab)
                 .tabItem {
                     Image(systemName: "clock.fill")
                     Text("사용·만료")
@@ -33,7 +33,7 @@ struct ContentView: View {
                 .tag(1)
             
             // 설정 탭
-            SettingView(deletedGifticons: $deletedGifticons)
+            SettingView(deletedGifticons: $deletedGifticons, currentTab: $selectedTab)
                 .tabItem {
                     Image(systemName: "gearshape.fill")
                     Text("설정")

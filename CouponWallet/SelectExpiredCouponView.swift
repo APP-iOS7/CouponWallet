@@ -125,24 +125,6 @@ struct SelectExpiredCouponView: View {
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
-                    } else {
-                        // 보기 모드일 때 버튼
-                        Button("뒤로") {
-                            dismiss()
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(10)
-                        
-                        Button("수정") {
-                            startEditing()
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
                     }
                 }
                 .padding()
@@ -209,7 +191,7 @@ struct SelectExpiredCouponCell: View {
                     Text("유효기간")
                         .foregroundColor(.gray)
                     Spacer()
-                    Text("~ $selectedCoupon.formattedExpiryDate) 까지")
+                    Text("~ \(selectedCoupon.formattedExpiryDate) 까지")
                         .fontWeight(.medium)
                 }
                 
