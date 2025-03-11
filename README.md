@@ -3,6 +3,15 @@
 ![Platform](https://img.shields.io/badge/Platforms-iOS%2018.0+-007AFF?logo=apple)
 
 CouponWallet은 디지털 기프티콘을 관리하기 위한 종합적인 iOS 애플리케이션입니다. 이 앱을 통해 사용자는 디지털 쿠폰을 스캔하고, 저장하고, 정리하며, 한 곳에서 편리하게 관리할 수 있습니다.
+
+## 개요
+
+- 프로젝트 이름: CouponWallet
+- 프로젝트 기간: 3월 7일 ~ 3월 11일
+- 개발 언어: Swift
+- 개발 프레임워크: SwiftUI, PhotosUI, Vision, VisionKit, SwiftData
+- 멤버: 김대홍, 조영민, 홍석평
+
 ## 🌟 주요 기능
 ### 홈 탭
 - **보유 쿠폰 보기**: 사용 가능한 유효한 쿠폰을 한눈에 볼 수 있습니다
