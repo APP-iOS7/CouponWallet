@@ -38,30 +38,36 @@ CouponWallet은 디지털 기프티콘을 관리하기 위한 종합적인 iOS �
   - 상품명
   - 유효기간
 - 카메라 스캔과 갤러리 이미지 모두 처리
+  
 ### 직관적인 UI
 - 깔끔한 카드 기반 인터페이스
 - 스와이프 가능한 쿠폰 상세 정보
 - 탭 기반 네비게이션
 - 쿠폰 상태에 따른 컨텍스트 액션
+
 ### SwiftData를 사용한 데이터 관리
 - 쿠폰 정보의 영구 저장
 - 효율적인 데이터베이스 쿼리 및 정렬
 - 복원 옵션이 있는 휴지통 기능
+
 ## 🔧 기술적 구현
 ### 사용된 프레임워크
 - **SwiftUI**: 현대적인 선언적 UI
 - **SwiftData**: 데이터 영속성 레이어
 - **Vision/VisionKit**: OCR 및 텍스트 인식
 - **PhotosUI**: 사진 라이브러리 통합
+  
 ### 주요 구성 요소
 - **GifticonScanManager**: OCR 및 텍스트 추출 처리
 - **TextAnalyzer**: 스캔된 텍스트에서 의미 있는 데이터 파싱 및 추출
 - **Gifticon Model**: 쿠폰 정보 저장을 위한 SwiftData 모델
 - **사용자 정의 뷰**: 다양한 쿠폰 상태 및 작업을 위한 특수 뷰
+  
 ### 사용자 경험 기능
 - 쿠폰 공유를 위한 스크린샷 기능
 - 쿠폰 카드 애니메이션 전환 효과
 - 앨범에 있는 쿠폰 자동 스캔
+  
 ## 📷 스크린샷
 <p align="center">
   <img src="https://github.com/user-attachments/assets/8227419b-acc9-4d09-bd8e-f984d44caf57" width="18%" alt="홈 화면" />
@@ -76,6 +82,7 @@ CouponWallet은 디지털 기프티콘을 관리하기 위한 종합적인 iOS �
 - iOS 18.0+
 - Xcode 16.0+
 - Swift 6.0+
+  
 ## 🔮 향후 개선 사항
 - 바코드/QR 코드 스캐닝
 - 유효기간 알림
