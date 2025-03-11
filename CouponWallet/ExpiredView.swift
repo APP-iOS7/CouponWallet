@@ -98,24 +98,30 @@ struct ExpiredView: View {
                             // 정렬된 기프티콘 리스트 사용
                             ForEach(sortedGifticons) { gifticon in
                                 ZStack {
-                                    GifticonCard(gifticon: gifticon, status: determineGifticonStatus(gifticon))
                                     
-                                    if isCheckMode {
-                                        Button {
-                                            selectedGifticon = gifticon
-                                            showDeleteAlert = true
-                                        } label: {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .resizable()
-                                                .frame(width: 50, height: 50)
-                                            // 쿠폰이 선택되면 red로 색상 변경
-                                                .foregroundColor(selectedGifticon == gifticon ? .red : .gray)
-                                                .background(Circle().fill(Color.white).opacity(0.8))
-                                                .clipShape(Circle())
+                                    // 대홍 코드 추가 수정 시작
+                                    NavigationLink(destination: SelectExpiredCouponView(selectedGifticon: gifticon)) {
+                                    // 대홍 코드 추가 수정 끝
+                                        
+                                        GifticonCard(gifticon: gifticon, status: determineGifticonStatus(gifticon))
+                                        
+                                        if isCheckMode {
+                                            Button {
+                                                selectedGifticon = gifticon
+                                                showDeleteAlert = true
+                                            } label: {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .resizable()
+                                                    .frame(width: 50, height: 50)
+                                                // 쿠폰이 선택되면 red로 색상 변경
+                                                    .foregroundColor(selectedGifticon == gifticon ? .red : .gray)
+                                                    .background(Circle().fill(Color.white).opacity(0.8))
+                                                    .clipShape(Circle())
+                                            }
+                                            .position(x: 90, y: 60)
                                         }
-                                        .position(x: 90, y: 60)
                                     }
-                                }
+                                } // ZStack
                             }
                         }
                         .padding()
