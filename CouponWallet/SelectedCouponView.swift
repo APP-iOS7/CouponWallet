@@ -18,17 +18,20 @@ struct SelectedCouponView: View {
     @State private var editedProductName: String = ""
     @State private var editedBrand: String = ""
     @State private var editedExpirationDate: Date = Date()
-    @State private var showSaveAlert: Bool = false
+//    @State private var showSaveAlert: Bool = false
+    
     // 스크린샷 변수 추가
     @State private var screenshotImage: UIImage? = nil
     @State private var showToast = false
+    
     init(selectedGifticon: Gifticon) {
         self.initialGifticon = selectedGifticon
         
         let now = Date()
+        
         // 사용 가능한 기프티콘: 만료되지 않았고 사용되지 않은 것
         let predicate = #Predicate<Gifticon> { gifticon in
-            !gifticon.isUsed && gifticon.expirationDate > now
+            !gifticon.isUsed && gifticon.expirationDate >= now
         }
         _availableGifticons = Query(filter: predicate, sort: [SortDescriptor(\.expirationDate)])
     }
@@ -55,7 +58,7 @@ struct SelectedCouponView: View {
             
             try? modelContext.save()
             isEditing = false
-            showSaveAlert = true
+//            showSaveAlert = true
         }
     }
     
@@ -163,11 +166,11 @@ struct SelectedCouponView: View {
                     }
                 }
             }
-            .alert("수정 완료", isPresented: $showSaveAlert) {
-                Button("확인", role: .cancel) { }
-            } message: {
-                Text("쿠폰 정보가 성공적으로 수정되었습니다.")
-            }
+//            .alert("수정 완료", isPresented: $showSaveAlert) {
+//                Button("확인", role: .cancel) { }
+//            } message: {
+//                Text("쿠폰 정보가 성공적으로 수정되었습니다.")
+//            }
 
             // Toast 메시지를 쿠폰 이미지 위로 이동
             if showToast {
