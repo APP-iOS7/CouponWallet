@@ -5,11 +5,8 @@ struct ThemeView: View {
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        NavigationStack {
             Form {
                 Section(header: Text("디스플레이 설정").foregroundColor(colorScheme == .dark ? .white : .black)) {
-                    
-                    // 다크 모드 버튼
                     Button(action: {
                         isDarkMode = true
                     }) {
@@ -21,7 +18,6 @@ struct ThemeView: View {
                         }
                     }
                     
-                    // 라이트 모드 버튼
                     Button(action: {
                         isDarkMode = false
                     }) {
@@ -36,6 +32,5 @@ struct ThemeView: View {
             }
             .navigationTitle("화면 테마")
             .preferredColorScheme(isDarkMode ? .dark : .light)
-        }
     }
 }

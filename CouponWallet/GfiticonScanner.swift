@@ -12,7 +12,6 @@ struct ScanResult {
 }
 
 struct TextAnalyzer {
-    // 상수로 정의하여 재사용
     static let defaultExpirationPeriod: TimeInterval = 30 * 24 * 60 * 60  // 30일
     static var defaultExpirationDate: Date {
         return Date().addingTimeInterval(defaultExpirationPeriod)

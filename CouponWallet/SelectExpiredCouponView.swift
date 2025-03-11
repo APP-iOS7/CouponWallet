@@ -243,22 +243,18 @@ struct EditableExpiredCouponCell: View {
                         .padding()
                 }
                 
-                // 상품명 수정 필드
                 LabeledContent("상품명") {
                     TextField("상품명을 입력하세요", text: $productName)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .multilineTextAlignment(.trailing)
                 }
                 
-                // 브랜드 수정 필드
                 LabeledContent("브랜드") {
-                    // 브랜드 선택 필드 (필요시 Picker로 대체 가능)
                     TextField("브랜드를 입력하세요", text: $brand)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .multilineTextAlignment(.trailing)
                 }
                 
-                // 유효기간 수정 필드
                 DatePicker(
                     "유효기간",
                     selection: $expirationDate,
@@ -277,11 +273,10 @@ struct EditableExpiredCouponCell: View {
 }
 
 #Preview {
-    // For preview purposes, create a dummy gifticon
     let gifticon = Gifticon(
         brand: "스타벅스",
         productName: "아메리카노",
-        expirationDate: Date().addingTimeInterval(-30*24*60*60), // 만료된 쿠폰으로 설정
+        expirationDate: Date().addingTimeInterval(-30*24*60*60),
         isUsed: true,
         imagePath: ""
     )

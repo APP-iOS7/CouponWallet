@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-// MARK: - 스캔 결과 화면
 
 struct ScanResultView: View {
     @ObservedObject var scanManager: GifticonScanManager
