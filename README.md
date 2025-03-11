@@ -74,6 +74,10 @@ Vision 및 VisionKit 프레임워크를 사용하여:
   <img src="https://github.com/user-attachments/assets/9a48daca-54cd-4295-bfd0-6ceea373557b" width="18%" alt="스캔 화면" />
 </p>
 
+## 📝 피그마 설계도
+<img width="1053" alt="스크린샷 2025-03-11 오후 2 44 05" src="https://github.com/user-attachments/assets/38c48f01-3ecd-4dcf-9acb-a0492f907d16" />
+
+
 ## 🚀 시작하기
 ### 요구 사항
 - iOS 18.0+
