@@ -26,9 +26,7 @@ struct ExpiredView: View {
     @State private var selectedGifticons: Set<UUID> = []
     // 삭제된 기프티콘 목록을 부모 뷰(ContentView)에서 전달받음
     @Binding var deletedGifticons: [Gifticon]
-    // 현재 선택된 탭을 ContentView에서 가져옴
     @Binding var currentTab: Int
-    // 다크모드 라이트모드 감지
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.modelContext) private var modelContext
     
@@ -57,7 +55,7 @@ struct ExpiredView: View {
         } else if gifticon.expirationDate <= Date() {
             return GifticonStatus.expired.rawValue
         } else {
-            return ""  // 이 경우는 없어야 함
+            return ""
         }
     }
     
@@ -84,7 +82,6 @@ struct ExpiredView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // 사용 완료 / 만료 필터 옵션만 유지
                 HStack(spacing: 10) {
                     ForEach(gifticonStatusFilter, id: \.self) { filter in
                         FilterButton(title: filter, isSelected: filter == selectedGifticonStatusFilter) {
@@ -126,13 +123,12 @@ struct ExpiredView: View {
                                         }
                                         .padding([.top, .trailing], 10) // 상단과 오른쪽에 여백 추가
                                     }
-                                } // ZStack
+                                }
                             }
                         }
                         .padding()
                     }
-                    
-                    // 체크 모드에서 선택된 항목이 있을 때만 표시되는 삭제 버튼
+
                     if isCheckMode && selectedCount > 0 {
                         Button {
                             showDeleteAlert = true
@@ -156,7 +152,6 @@ struct ExpiredView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    // 정렬 버튼 (최신순/오래된 순 토글)
                     Button {
                         sortByDateDesc.toggle()
                     } label: {
@@ -185,7 +180,6 @@ struct ExpiredView: View {
                 Text("선택한 \(selectedCount)개의 쿠폰이 휴지통으로 이동됩니다.")
             }
         }
-        // 배경색 변경
         .background(colorScheme == .dark ? Color.black : Color.white)
         // 탭 변경 감지 및 체크모드 리셋
         .onChange(of: currentTab) { oldValue, newValue in

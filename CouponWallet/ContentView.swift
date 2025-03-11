@@ -11,8 +11,8 @@ import SwiftData
 import Vision
 
 struct ContentView: View {
-    @State private var selectedTab = 0 // 0: 보유, 1: 사용·만료, 2: 설정
-    // 삭제된 기프티콘을 저장하는 배열 (휴지통 기능을 위해 사용)
+    @State private var selectedTab = 0
+    // 삭제된 기프티콘을 저장하는 배열
     @State var deletedGifticons: [Gifticon] = []
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -44,7 +44,6 @@ struct ContentView: View {
     }
 }
 
-// 쿠폰 타입 enum
 enum GifticonType {
     case available
     case expired
@@ -64,22 +63,18 @@ struct AvailableGifticonView: View {
     @State private var selectedItems: [PhotosPickerItem] = []
     @StateObject private var scanManager = GifticonScanManager()
     
-    // 사용 가능한 기프티콘 뷰 init 부분 수정
     init() {
         let now = Date()
-        // 사용 가능한 기프티콘: 만료되지 않았고 사용되지 않은 것
         let predicate = #Predicate<Gifticon> { gifticon in
             !gifticon.isUsed && gifticon.expirationDate > now
         }
         _availableGifticons = Query(filter: predicate, sort: [SortDescriptor(\.expirationDate)])
     }
     
-    // 필터링된 쿠폰 목록 - 단순화된 방식으로 분리
     var filteredGifticons: [Gifticon] {
         return getFilteredGifticons()
     }
     
-    // 필터링 로직을 별도 함수로 분리
     private func getFilteredGifticons() -> [Gifticon] {
         if selectedFilter == "전체" {
             return availableGifticons
@@ -221,7 +216,7 @@ struct AvailableGifticonView: View {
         }
     }
     
-    // 선택한 이미지 직접 처리 (확인 화면 없이)
+    // 선택한 이미지 직접 처리
     private func processImageDirectly(from item: PhotosPickerItem) {
         item.loadTransferable(type: Data.self) { result in
             switch result {
@@ -240,7 +235,6 @@ struct AvailableGifticonView: View {
     
     // 이미지 인식 및 기프티콘 직접 저장
     private func recognizeAndSaveGifticon(image: UIImage) {
-        // 임시 ScanManager 생성
         let tempScanManager = GifticonScanManager()
         
         // 기본값 설정

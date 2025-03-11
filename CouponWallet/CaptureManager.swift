@@ -5,7 +5,6 @@
 //  Created by Reimos on 3/9/25.
 //
 
-// 스크린 샷을 찍고 앨범에 저장
 import SwiftUI
 import Photos
 
@@ -18,7 +17,6 @@ extension UIView {
         }
     }
 }
-// saveCaptureImageToAlbum - 주어진 스크린샷 이미지를 앨범에 저장
 func saveCaptureImageToAlbum(_ screenshot: UIImage) {
     UIImageWriteToSavedPhotosAlbum(screenshot, nil, nil, nil)
     print("스크린샷 저장 성공!!!")

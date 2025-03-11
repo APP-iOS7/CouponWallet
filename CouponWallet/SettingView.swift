@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SettingView: View {
-   // 삭제된 기프티콘을 저장하는 배열 (휴지통 기능을 위해 사용)
     @Binding var deletedGifticons: [Gifticon]
     @Binding var currentTab: Int
     
@@ -56,7 +55,3 @@ struct SettingView: View {
         }
     }
 }
-//
-//#Preview {
-//    SettingView(deletedGifticons: .constant([]))
-//}
